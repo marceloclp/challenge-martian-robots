@@ -1,4 +1,4 @@
-import { FC } from "react"
+import { FC, useEffect, useRef } from "react"
 import { useSnapshot } from "valtio"
 import { CommandLineIcon, PauseCircleIcon, PlayCircleIcon, PlayPauseIcon } from "@heroicons/react/24/solid"
 import clsx from "clsx"
@@ -29,6 +29,34 @@ const InstructionSlider: FC = () => {
     instructionIndex,
     explorationStatus,
   } = useSnapshot(state)
+
+  const sliderRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Whenever a new exploration starts, we need to reset the horizontal
+    // scroll position of the slider back to zero:
+    if (sliderRef.current)
+      sliderRef.current.scrollTo({ left: 0, behavior: 'smooth' })
+  }, [explorationId])
+
+  useEffect(() => {
+    if (!sliderRef.current) return
+    if (instructionIndex >= sliderRef.current.children.length) return
+
+    const sliderElem = sliderRef.current
+    const itemElem = sliderElem.children[instructionIndex] as HTMLElement
+
+    const sliderWidth = sliderElem.getBoundingClientRect().width
+    const sliderScrollLeft = sliderElem.scrollLeft
+    const itemOffset = itemElem.offsetLeft
+
+    const scrollOffset = itemOffset - (sliderWidth + sliderScrollLeft)
+
+    if (scrollOffset > 0) {
+      // Scroll the currently active instruction item into view
+      sliderElem.scrollBy({ left: scrollOffset, behavior: 'smooth' })
+    }
+  }, [instructionIndex])
   
   const isExplorationLost = explorationStatus === ExplorationStatus.LOST
   const isExplorationPlaying = explorationStatus === ExplorationStatus.PLAYING
@@ -42,6 +70,7 @@ const InstructionSlider: FC = () => {
     <div className="flex flex-col gap-1">
       <h6 className="px-1.5 font-medium text-neutral-400">Instructions</h6>
       <div
+        ref={sliderRef}
         className={clsx(
           'h-14 w-full p-2 rounded-md overflow-scroll',
           'flex flex-row items-center gap-2',
