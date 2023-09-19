@@ -7,9 +7,20 @@ import InputField from "@/components/InputField"
 import InputSelect from "@/components/InputSelect"
 import Panel from "@/components/Panel"
 import { TEMP_HEIGHT, TEMP_WIDTH } from "@/components/Grid"
+import { startExploration } from "@/components/state"
 
 /**
+ * Since our form is very simple, there is no need to use 3rd party libraries
+ * like react-hook-form or Zod.
  * 
+ * To keep the application snappy and lag-free we are embracing uncontrolled
+ * components here and reading the input field values directly from the DOM as
+ * the form is submitted.
+ * 
+ * It may look weird to have an event handler outside a component trigger a
+ * state update, but that is possible thanks to `valtio`. This means all our
+ * event handlers are stable and are not going to trigger rerenders - this
+ * component, for example, rerenders ZERO times.
  */
 const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
   event.preventDefault()
@@ -19,8 +30,7 @@ const onSubmit: FormEventHandler<HTMLFormElement> = (event) => {
   const direction = event.currentTarget['direction'].value as Direction
   const instructions = event.currentTarget['instructions'].value as string
 
-  // TODO: do something with the new robot
-  console.log({ x, y, direction, instructions })
+  startExploration(x, y, direction, instructions)
 }
 
 const PanelSendRobot: FC = () => (
