@@ -38,7 +38,7 @@ export type ProcessedInstruction = {
 let timeout: NodeJS.Timeout
 
 export const state = proxy({
-  surface: new Surface2d(5, 5),
+  surface: new Surface2d(DEFAULT_SURFACE_RIGHT_X, DEFAULT_SURFACE_UPPER_Y),
   robot: new Robot2d(0, 0, 'N'),
   robotInstructions: [
     moveForwardInstruction,

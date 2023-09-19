@@ -1,16 +1,15 @@
 import { FC, useMemo } from "react"
-import PannableSVG from "./PannableSVG"
-import GridEdgeHorizontal from "./GridEdgeHorizontal"
-import GridEdgeVertical from "./GridEdgeVertical"
+import { useSnapshot } from "valtio"
+
+import { state } from "@/components/state"
+import GridEdgeHorizontal from "@/components/GridEdgeHorizontal"
+import GridEdgeVertical from "@/components/GridEdgeVertical"
+import PannableSVG from "@/components/PannableSVG"
 
 export const GRID_CELL_SIZE_PX = 100
 export const GRID_CELL_SPACING_PX = 6
 export const GRID_EDGE_SIZE_PX = 6
 export const GRID_EDGE_SPACING_PX = 4
-
-// TEMP: hard coded for now
-export const TEMP_WIDTH = 5
-export const TEMP_HEIGHT = 5
 
 export const getGridX = (x: number) =>
   x * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
@@ -25,7 +24,7 @@ export const getGridX = (x: number) =>
  * rotated towards the opposite direction), translating elements and scaling.
  */
 export const getGridY = (y: number) =>
-  (TEMP_HEIGHT - 1 - y) * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
+  (state.surface.height - 1 - y) * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
 
 /**
  * Each grid layout (width x height) is unique given its height (as it's the
@@ -37,16 +36,20 @@ const getGridCellKey = (x: number, y: number) =>
   `grid-cell-${getGridX(x)}-${getGridY(y)}`
 
 const Grid: FC = () => {
+  const {
+    surface: { width, height },
+  } = useSnapshot(state)
+
   const cells = useMemo(() => {
-    return Array(TEMP_HEIGHT).fill(0).map((_, y) =>
-      Array(TEMP_WIDTH).fill(0).map((_, x) => ({ x, y, key: getGridCellKey(x, y) }))
+    return Array(height).fill(0).map((_, y) =>
+      Array(width).fill(0).map((_, x) => ({ x, y, key: getGridCellKey(x, y) }))
     ).flat()
-  }, [])
+  }, [height, width])
 
   return (
     <PannableSVG className="fixed top-0 left-0 w-screen h-screen">
-      <GridEdgeHorizontal width={TEMP_WIDTH} />
-      <GridEdgeVertical height={TEMP_HEIGHT} />
+      <GridEdgeHorizontal width={width} />
+      <GridEdgeVertical height={height} />
       {cells.map(({ x, y, key }) => (
         <rect key={key} x={getGridX(x)} y={getGridY(y)} width={GRID_CELL_SIZE_PX} height={GRID_CELL_SIZE_PX} rx={6} className="fill-gray-200" />
       ))}
