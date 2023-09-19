@@ -13,6 +13,9 @@ import { Direction } from "@/types"
 
 const INSTRUCTION_TICK_DELAY_MS = 1000
 
+export const DEFAULT_SURFACE_RIGHT_X = 5
+export const DEFAULT_SURFACE_UPPER_Y = 3
+
 export enum ExplorationStatus {
   LOST = 'lost',
   PLAYING = 'playing',
@@ -45,7 +48,7 @@ export const state = proxy({
   explorationId: 0,
   explorationStatus: ExplorationStatus.PAUSED,
   instructions: [] as ProcessedInstruction[],
-  instructionIndex: 1,
+  instructionIndex: 0,
 })
 
 const setStatus = (status: ExplorationStatus) => state.explorationStatus = status
@@ -118,4 +121,15 @@ export const toggleExploration = () => {
     return setStatus(ExplorationStatus.PLAYING) && executeTick()
   if (state.explorationStatus === ExplorationStatus.PLAYING)
     return setStatus(ExplorationStatus.PAUSED)
+}
+
+export const updateSurface = (x: number, y: number) => {
+  if (timeout) clearTimeout(timeout)
+
+  state.surface = new Surface2d(x, y)
+  state.robot = new Robot2d(0, 0, 'N')
+  state.explorationId += 1
+  state.explorationStatus = ExplorationStatus.PAUSED
+  state.instructions = []
+  state.instructionIndex = 0
 }

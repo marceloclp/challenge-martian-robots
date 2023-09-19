@@ -5,6 +5,7 @@ import { FC } from "react"
 import Grid from "@/components/Grid"
 import PanelExploration from "@/components/PanelExploration"
 import PanelSendRobot from "@/components/PanelSendRobot"
+import PanelSurface from "@/components/PanelSurface"
 
 const App: FC = () => (
   <div className="relative w-screen h-screen overscroll-contain">
@@ -14,6 +15,9 @@ const App: FC = () => (
     </div>
     <div className="absolute right-12 bottom-12 w-[400px]">
       <PanelExploration />
+    </div>
+    <div className="absolute top-12 right-12 w-[400px]">
+      <PanelSurface />
     </div>
   </div>
 )
