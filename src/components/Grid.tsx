@@ -1,7 +1,8 @@
 import { FC, useMemo } from "react"
 import { useSnapshot } from "valtio"
+import clsx from "clsx"
 
-import { state } from "@/components/state"
+import { ExplorationStatus, state } from "@/components/state"
 import GridEdgeHorizontal from "@/components/GridEdgeHorizontal"
 import GridEdgeVertical from "@/components/GridEdgeVertical"
 import PannableSVG from "@/components/PannableSVG"
@@ -35,6 +36,42 @@ export const getGridY = (y: number) =>
 const getGridCellKey = (x: number, y: number) =>
   `grid-cell-${getGridX(x)}-${getGridY(y)}`
 
+const GridRobot: FC = () => {
+  const {
+    explorationStatus,
+    robot: { x, y, rotation },
+  } = useSnapshot(state)
+
+  const translate = `translate(${getGridX(x)}, ${getGridY(y)})`
+  // Rotate by an additional 180deg as the pin icon is initially pointing south:
+  const rotate = `rotate(${rotation + 180}) scale(0.85)`
+
+  const outerPathClassName = clsx('delay-300 duration-300 ease-in-out', {
+    [ExplorationStatus.PAUSED]: 'stroke-slate-400 fill-slate-100',
+    [ExplorationStatus.PLAYING]: 'stroke-green-600 fill-green-200',
+    [ExplorationStatus.COMPLETED]: 'stroke-slate-400 fill-slate-100 opacity-70',
+    [ExplorationStatus.LOST]: 'stroke-red-600 fill-red-200 opacity-50',
+  }[explorationStatus])
+
+  const innerPathClassName = clsx('delay-300 duration-300 ease-in-out', {
+    [ExplorationStatus.PAUSED]: 'stroke-slate-400 fill-slate-200 animate-pulse',
+    [ExplorationStatus.PLAYING]: 'stroke-green-700 fill-green-400 animate-pulse',
+    [ExplorationStatus.COMPLETED]: 'stroke-slate-400 fill-slate-200 opacity-70',
+    [ExplorationStatus.LOST]: 'stroke-red-400 fill-red-200 opacity-50',
+  }[explorationStatus])
+
+  return (
+    <g transform={translate} className="origin-center duration-300 ease-in-out">
+      <svg width="100" height="100" viewBox="0 0 24 24" className="stroke-2">
+        <g className="origin-center duration-300 ease-in-out" transform={rotate}>
+          <path xmlns="http://www.w3.org/2000/svg" d="M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z" strokeLinecap="round" strokeLinejoin="round" className={outerPathClassName} />
+          <path xmlns="http://www.w3.org/2000/svg" d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" strokeLinecap="round" strokeLinejoin="round" className={innerPathClassName} />
+        </g>
+      </svg>
+    </g>
+  )
+}
+
 const Grid: FC = () => {
   const {
     surface: { width, height },
@@ -53,6 +90,7 @@ const Grid: FC = () => {
       {cells.map(({ x, y, key }) => (
         <rect key={key} x={getGridX(x)} y={getGridY(y)} width={GRID_CELL_SIZE_PX} height={GRID_CELL_SIZE_PX} rx={6} className="fill-gray-200" />
       ))}
+      <GridRobot />
     </PannableSVG>
   )
 }
