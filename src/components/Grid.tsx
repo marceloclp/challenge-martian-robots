@@ -1,12 +1,16 @@
 import { FC, useMemo } from "react"
 import PannableSVG from "./PannableSVG"
+import GridEdgeHorizontal from "./GridEdgeHorizontal"
+import GridEdgeVertical from "./GridEdgeVertical"
 
 export const GRID_CELL_SIZE_PX = 100
 export const GRID_CELL_SPACING_PX = 6
+export const GRID_EDGE_SIZE_PX = 6
+export const GRID_EDGE_SPACING_PX = 4
 
 // TEMP: hard coded for now
-const width = 10
-const height = 10
+const width = 5
+const height = 5
 
 export const getGridX = (x: number) =>
   x * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
@@ -41,8 +45,10 @@ const Grid: FC = () => {
 
   return (
     <PannableSVG className="fixed top-0 left-0 w-screen h-screen">
+      <GridEdgeHorizontal width={width} />
+      <GridEdgeVertical height={height} />
       {cells.map(({ x, y, key }) => (
-        <rect key={key} x={getGridX(x)} y={getGridY(y)} width={GRID_CELL_SIZE_PX} height={GRID_CELL_SIZE_PX} rx={6} />
+        <rect key={key} x={getGridX(x)} y={getGridY(y)} width={GRID_CELL_SIZE_PX} height={GRID_CELL_SIZE_PX} rx={6} className="fill-gray-200" />
       ))}
     </PannableSVG>
   )
