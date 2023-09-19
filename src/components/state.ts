@@ -110,6 +110,12 @@ export const startExploration = (x: number, y: number, direction: Direction, ins
   state.explorationId += 1
   state.explorationStatus = ExplorationStatus.PLAYING
 
-  if (timeout) clearTimeout(timeout)
   executeTick()
+}
+
+export const toggleExploration = () => {
+  if (state.explorationStatus === ExplorationStatus.PAUSED)
+    return setStatus(ExplorationStatus.PLAYING) && executeTick()
+  if (state.explorationStatus === ExplorationStatus.PLAYING)
+    return setStatus(ExplorationStatus.PAUSED)
 }

@@ -1,9 +1,9 @@
 import { FC } from "react"
 import { useSnapshot } from "valtio"
-import { CommandLineIcon } from "@heroicons/react/24/solid"
+import { CommandLineIcon, PauseCircleIcon, PlayCircleIcon, PlayPauseIcon } from "@heroicons/react/24/solid"
 import clsx from "clsx"
 
-import { ExplorationStatus, state } from "@/components/state"
+import { ExplorationStatus, state, toggleExploration } from "@/components/state"
 import InputField from "@/components/InputField"
 import Panel from "@/components/Panel"
 import PingBadge from "@/components/PingBadge"
@@ -77,11 +77,53 @@ const InstructionSlider: FC = () => {
   )
 }
 
+const ExplorationToggleButton: FC = () => {
+  const { explorationStatus } = useSnapshot(state)
+
+  const isPlaying = explorationStatus === ExplorationStatus.PLAYING
+  const isPaused = explorationStatus === ExplorationStatus.PAUSED
+  const isOngoing = isPlaying || isPaused
+
+  const icon = (
+    (isPlaying && <PauseCircleIcon className="w-5 h-5 stroke-[2.5]" />) ||
+    (isPaused && <PlayCircleIcon className="w-5 h-5 stroke-[2.5]" />) ||
+    <PlayPauseIcon className="w-5 h-5 stroke-[2.5]" />
+  )
+
+  const text = (
+    (isPlaying && 'Pause exploration') ||
+    (isPaused && 'Resume exploration') ||
+    'No active exploration'
+  )
+
+  return (
+    <button
+      onClick={toggleExploration}
+      type="button"
+      className={clsx(
+        'flex items-center gap-2',
+        'py-2.5 px-6 pr-8 rounded-md',
+        'font-semibold',
+        'bg-slate-200/50 hover:bg-slate-200/100',
+        'text-slate-500/70 hover:text-slate-500/90',
+        'disabled:cursor-not-allowed',
+        'duration-75 ease-in-out',
+      )}
+      disabled={!isOngoing}
+    >
+      {icon} {text}
+    </button>
+  )
+}
+
 const PanelExploration: FC = () => (
   <Panel icon={CommandLineIcon} title="Exploration">
     <div className="flex flex-col gap-5">
       <RobotInformation />
       <InstructionSlider />
+      <div className="flex flex-row gap-3">
+        <ExplorationToggleButton />
+      </div>
     </div>
   </Panel>
 )
