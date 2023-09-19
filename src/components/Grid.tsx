@@ -3,8 +3,6 @@ import { useSnapshot } from "valtio"
 import clsx from "clsx"
 
 import { ExplorationStatus, state } from "@/components/state"
-import GridEdgeHorizontal from "@/components/GridEdgeHorizontal"
-import GridEdgeVertical from "@/components/GridEdgeVertical"
 import PannableSVG from "@/components/PannableSVG"
 
 export const GRID_CELL_SIZE_PX = 100
@@ -12,7 +10,7 @@ export const GRID_CELL_SPACING_PX = 6
 export const GRID_EDGE_SIZE_PX = 6
 export const GRID_EDGE_SPACING_PX = 4
 
-export const getGridX = (x: number) =>
+const getGridX = (x: number) =>
   x * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
 
 /**
@@ -24,17 +22,62 @@ export const getGridX = (x: number) =>
  * SVG, but this will cause confusion when handling rotations (as they will be
  * rotated towards the opposite direction), translating elements and scaling.
  */
-export const getGridY = (y: number) =>
+const getGridY = (y: number) =>
   (state.surface.height - 1 - y) * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
 
-/**
- * Each grid layout (width x height) is unique given its height (as it's the
- * only thing that needs to mapped to a different coordinate system, as per
- * above). By making sure the grid cell keys reflect that we can optimize the
- * layout to only render when the height has changed.
- */
-const getGridCellKey = (x: number, y: number) =>
-  `grid-cell-${getGridX(x)}-${getGridY(y)}`
+const GridEdgeX: FC<{ width: number }> = ({ width }) => (
+  <g
+    transform={`translate(0, ${getGridY(-1) + GRID_EDGE_SIZE_PX})`}
+    className={clsx(
+      'fill-amber-400',
+      'text-amber-500/30',
+      'font-mono text-4xl font-bold',
+      'select-none',
+    )}
+  >
+    {Array(width).fill(0).map((_, x) => (
+      <g key={x} transform={`translate(${getGridX(x)}, 0)`}>
+        <rect width={GRID_CELL_SIZE_PX} height={GRID_EDGE_SIZE_PX} />
+        <text
+          x={GRID_CELL_SIZE_PX / 2}
+          y={20}
+          alignmentBaseline="hanging"
+          textAnchor="middle"
+          fill="currentColor"
+        >
+          {x}
+        </text>
+      </g>
+    ))}
+  </g>
+)
+
+const GridEdgeY: FC<{ height: number }> = ({ height }) => (
+  <g
+    transform={`translate(${-GRID_CELL_SPACING_PX - GRID_EDGE_SIZE_PX - GRID_EDGE_SPACING_PX}, 0)`}
+    className={clsx(
+      'fill-rose-400',
+      'text-rose-500/30',
+      'font-mono text-4xl font-bold',
+      'select-none',
+    )}
+  >
+    {Array(height).fill(0).map((_, y) => (
+      <g key={y} transform={`translate(0, ${getGridY(y)})`}>
+        <rect width={GRID_EDGE_SIZE_PX} height={GRID_CELL_SIZE_PX} />
+        <text
+          x={-20}
+          y={GRID_CELL_SIZE_PX / 2}
+          alignmentBaseline="middle"
+          textAnchor="end"
+          fill="currentColor"
+        >
+          {y}
+        </text>
+      </g>
+    ))}
+  </g>
+)
 
 const GridRobot: FC = () => {
   const {
@@ -72,6 +115,15 @@ const GridRobot: FC = () => {
   )
 }
 
+/**
+ * Each grid layout (width x height) is unique given its height (as it's the
+ * only thing that needs to mapped to a different coordinate system, as per
+ * above). By making sure the grid cell keys reflect that we can optimize the
+ * layout to only render when the height has changed.
+ */
+const getGridCellKey = (x: number, y: number) =>
+  `grid-cell-${getGridX(x)}-${getGridY(y)}`
+
 const Grid: FC = () => {
   const {
     surface: { width, height },
@@ -85,8 +137,8 @@ const Grid: FC = () => {
 
   return (
     <PannableSVG className="fixed top-0 left-0 w-screen h-screen">
-      <GridEdgeHorizontal width={width} />
-      <GridEdgeVertical height={height} />
+      <GridEdgeX width={width} />
+      <GridEdgeY height={height} />
       {cells.map(({ x, y, key }) => (
         <rect key={key} x={getGridX(x)} y={getGridY(y)} width={GRID_CELL_SIZE_PX} height={GRID_CELL_SIZE_PX} rx={6} className="fill-gray-200" />
       ))}
