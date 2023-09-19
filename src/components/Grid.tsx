@@ -9,8 +9,8 @@ export const GRID_EDGE_SIZE_PX = 6
 export const GRID_EDGE_SPACING_PX = 4
 
 // TEMP: hard coded for now
-const width = 5
-const height = 5
+export const TEMP_WIDTH = 5
+export const TEMP_HEIGHT = 5
 
 export const getGridX = (x: number) =>
   x * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
@@ -25,7 +25,7 @@ export const getGridX = (x: number) =>
  * rotated towards the opposite direction), translating elements and scaling.
  */
 export const getGridY = (y: number) =>
-  (height - 1 - y) * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
+  (TEMP_HEIGHT - 1 - y) * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
 
 /**
  * Each grid layout (width x height) is unique given its height (as it's the
@@ -38,15 +38,15 @@ const getGridCellKey = (x: number, y: number) =>
 
 const Grid: FC = () => {
   const cells = useMemo(() => {
-    return Array(height).fill(0).map((_, y) =>
-      Array(width).fill(0).map((_, x) => ({ x, y, key: getGridCellKey(x, y) }))
+    return Array(TEMP_HEIGHT).fill(0).map((_, y) =>
+      Array(TEMP_WIDTH).fill(0).map((_, x) => ({ x, y, key: getGridCellKey(x, y) }))
     ).flat()
   }, [])
 
   return (
     <PannableSVG className="fixed top-0 left-0 w-screen h-screen">
-      <GridEdgeHorizontal width={width} />
-      <GridEdgeVertical height={height} />
+      <GridEdgeHorizontal width={TEMP_WIDTH} />
+      <GridEdgeVertical height={TEMP_HEIGHT} />
       {cells.map(({ x, y, key }) => (
         <rect key={key} x={getGridX(x)} y={getGridY(y)} width={GRID_CELL_SIZE_PX} height={GRID_CELL_SIZE_PX} rx={6} className="fill-gray-200" />
       ))}

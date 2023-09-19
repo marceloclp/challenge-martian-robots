@@ -1,11 +1,5 @@
-'use client'
-
-import Grid from '@/components/Grid'
+import App from "@/components/App"
 
 export default function Home() {
-  return (
-    <div className="w-screen h-screen relative">
-      <Grid />
-    </div>
-  )
+  return <App />
 }
