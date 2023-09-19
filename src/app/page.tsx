@@ -1,6 +1,7 @@
 'use client'
 
 import Grid from '@/components/Grid'
+import PannableSVG from '@/components/PannableSVG'
 
 export default function Home() {
   return (

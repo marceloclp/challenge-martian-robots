@@ -1,4 +1,5 @@
 import { FC, useMemo } from "react"
+import PannableSVG from "./PannableSVG"
 
 export const GRID_CELL_SIZE_PX = 100
 export const GRID_CELL_SPACING_PX = 6
@@ -39,11 +40,11 @@ const Grid: FC = () => {
   }, [])
 
   return (
-    <svg className="fixed top-0 left-0 w-screen h-screen">
+    <PannableSVG className="fixed top-0 left-0 w-screen h-screen">
       {cells.map(({ x, y, key }) => (
         <rect key={key} x={getGridX(x)} y={getGridY(y)} width={GRID_CELL_SIZE_PX} height={GRID_CELL_SIZE_PX} rx={6} />
       ))}
-    </svg>
+    </PannableSVG>
   )
 }
 
