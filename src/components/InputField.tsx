@@ -22,6 +22,7 @@ const InputField: FC<Props> = ({ className, label, ...props }) => {
             // Remove shadow on read-only inputs so we can use it as a simple
             // text container later on
             'shadow-sm read-only:shadow-none',
+            'focus:outline-none focus:ring-2 focus:ring-blue-500',
           )}
         />
       </div>

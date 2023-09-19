@@ -22,6 +22,7 @@ const InputSelect: FC<Props> = ({ className, label, ...props }) => {
             'text-neutral-500 shadow-sm',
             // Remove the default chevron from the select element:
             'appearance-none',
+            'focus:outline-none focus:ring-2 focus:ring-blue-500',
           )}
         />
         <ChevronUpDownIcon className="absolute top-1/2 right-1.5 -translate-y-1/2 w-5 h-5 stroke-2 text-neutral-500" />
