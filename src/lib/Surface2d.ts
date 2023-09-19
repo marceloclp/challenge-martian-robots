@@ -1,5 +1,9 @@
 export default class Surface2d {
   constructor(rightX: number, upperY: number) {
+    if (rightX <= 0)
+      throw new Error(`rightX can't be lower or equal to the origin X coordinate`)
+    if (upperY <= 0)
+      throw new Error(`upperY can't be lower or equal to the origin Y coordinate`)
     this._width = rightX + 1
     this._height = upperY + 1
   }
