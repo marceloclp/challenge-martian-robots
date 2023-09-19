@@ -2,13 +2,15 @@ import { FC, useMemo } from "react"
 import { useSnapshot } from "valtio"
 import clsx from "clsx"
 
+import Robot2d from "@/lib/Robot2d"
+
 import { ExplorationStatus, state } from "@/components/state"
 import PannableSVG from "@/components/PannableSVG"
 
 export const GRID_CELL_SIZE_PX = 100
-export const GRID_CELL_SPACING_PX = 6
-export const GRID_EDGE_SIZE_PX = 6
-export const GRID_EDGE_SPACING_PX = 4
+export const GRID_CELL_SPACING_PX = 8
+export const GRID_EDGE_SIZE_PX = 8
+export const GRID_EDGE_SPACING_PX = 6
 
 const getGridX = (x: number) =>
   x * (GRID_CELL_SIZE_PX + GRID_CELL_SPACING_PX)
@@ -31,7 +33,7 @@ const GridEdgeX: FC<{ width: number }> = ({ width }) => (
     className={clsx(
       'fill-amber-400',
       'text-amber-500/30',
-      'font-mono text-4xl font-bold',
+      'font-mono text-5xl font-bold',
       'select-none',
     )}
   >
@@ -58,7 +60,7 @@ const GridEdgeY: FC<{ height: number }> = ({ height }) => (
     className={clsx(
       'fill-rose-400',
       'text-rose-500/30',
-      'font-mono text-4xl font-bold',
+      'font-mono text-5xl font-bold',
       'select-none',
     )}
   >
@@ -92,14 +94,14 @@ const GridRobot: FC = () => {
   const outerPathClassName = clsx('delay-300 duration-300 ease-in-out', {
     [ExplorationStatus.PAUSED]: 'stroke-slate-400 fill-slate-100',
     [ExplorationStatus.PLAYING]: 'stroke-green-600 fill-green-200',
-    [ExplorationStatus.COMPLETED]: 'stroke-slate-400 fill-slate-100 opacity-70',
+    [ExplorationStatus.COMPLETED]: 'stroke-slate-400 fill-slate-100',
     [ExplorationStatus.LOST]: 'stroke-red-600 fill-red-200 opacity-50',
   }[explorationStatus])
 
   const innerPathClassName = clsx('delay-300 duration-300 ease-in-out', {
     [ExplorationStatus.PAUSED]: 'stroke-slate-400 fill-slate-200 animate-pulse',
     [ExplorationStatus.PLAYING]: 'stroke-green-700 fill-green-400 animate-pulse',
-    [ExplorationStatus.COMPLETED]: 'stroke-slate-400 fill-slate-200 opacity-70',
+    [ExplorationStatus.COMPLETED]: 'stroke-slate-400 fill-slate-200',
     [ExplorationStatus.LOST]: 'stroke-red-400 fill-red-200 opacity-50',
   }[explorationStatus])
 
@@ -115,6 +117,19 @@ const GridRobot: FC = () => {
   )
 }
 
+const GridCell: FC<{ x: number; y: number; hasScent: boolean }> = ({ x, y, hasScent }) => (
+  <g
+    transform={`translate(${getGridX(x)}, ${getGridY(y)})`}
+    className={clsx(
+      hasScent
+        ? 'fill-amber-300/70'
+        : 'fill-gray-200',
+    )}
+  >
+    <rect width={GRID_CELL_SIZE_PX} height={GRID_CELL_SIZE_PX} rx={3} />
+  </g>
+)
+
 /**
  * Each grid layout (width x height) is unique given its height (as it's the
  * only thing that needs to mapped to a different coordinate system, as per
@@ -125,22 +140,23 @@ const getGridCellKey = (x: number, y: number) =>
   `grid-cell-${getGridX(x)}-${getGridY(y)}`
 
 const Grid: FC = () => {
-  const {
-    surface: { width, height },
-  } = useSnapshot(state)
+  const { surface } = useSnapshot(state)
 
   const cells = useMemo(() => {
-    return Array(height).fill(0).map((_, y) =>
-      Array(width).fill(0).map((_, x) => ({ x, y, key: getGridCellKey(x, y) }))
+    return Array(surface.height).fill(0).map((_, y) =>
+      Array(surface.width).fill(0).map((_, x) => ({ x, y, key: getGridCellKey(x, y) }))
     ).flat()
-  }, [height, width])
+  }, [surface.height, surface.width])
+
+  const hasScent = (x: number, y: number) =>
+    surface.hasEntity(Robot2d.entities.SCENT, x, y)
 
   return (
     <PannableSVG className="fixed top-0 left-0 w-screen h-screen">
-      <GridEdgeX width={width} />
-      <GridEdgeY height={height} />
+      <GridEdgeX width={surface.width} />
+      <GridEdgeY height={surface.height} />
       {cells.map(({ x, y, key }) => (
-        <rect key={key} x={getGridX(x)} y={getGridY(y)} width={GRID_CELL_SIZE_PX} height={GRID_CELL_SIZE_PX} rx={6} className="fill-gray-200" />
+        <GridCell key={key} x={x} y={y} hasScent={hasScent(x, y)} />
       ))}
       <GridRobot />
     </PannableSVG>
