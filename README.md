@@ -10,7 +10,7 @@ https://github.com/marceloclp/challenge-martian-robots/assets/8413171/908bb547-6
 nvm use && pnpm install && pnpn run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the result.
+Open [http://localhost:3000](http://localhost:3000) or click [here](https://challenge-martian-robots.vercel.app/) to see the result.
 
 # Solution
 
