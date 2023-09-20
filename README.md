@@ -20,15 +20,20 @@ The solution is structured into three main entities/classes:
   that have been placed in it, like the scent left by a robot), and what
   positions are out of bounds. Its responsibility is to abstract away any implementation
   details on how a planet's terrain is shaped (be it a flat surface, a circular
-  array or a graph with holes in the middle).
-- `Robot`s, which hold state about the position and rotation inside an abstract
+  array or a graph with holes in the middle) and expose a simple, universal way
+  of interacting with any type of surface.
+- `Robot`s, which hold state about its positioning and rotation inside an abstract
   surface. Robots on their own can't interact with or manipulate Surfaces - and
-  the inverse is also true. Its responsibility is to abstract all the
-  implementation details on how a thing could transverse and rotate in a 2d
-  physical surface.
-- and finally `RobotInstruction`s, which are the bridge between robots and
-  surfaces. A Robot Instruction defines how a robot interact and manipulates a
-  surface by consuming both APIs.
+  the inverse is also true. In fact, they are not even aware of what surface they
+  are on. The only thing they keep track of is their positioning and rotation.
+  Its responsibility is to abstract all the implementation details on how a
+  physical thing could transverse and rotate in a 2d physical surface.
+- and finally `RobotInstruction`s, which are what bridges robots and surfaces,
+  and define how a robot manipulates a surface. A robot instruction is a well
+  defined sequence of steps a robot takes. It's like a reducer: take a snapshot
+  of a Robot and a Surface in any moment in time, apply an instruction, and that
+  will give you the next state of the robot and the surface. Instructions are
+  the only thing that can update Robots or Surfaces.
 
 ```mermaid
 flowchart LR
@@ -61,50 +66,66 @@ flowchart LR
     D --> Output["Output (robot report)"]
 ```
 
-This is similar to the Flux architecture (used by Redux), where a robot instruction
-is equivalent to an action, and the robot and surface are the payload.
+```ts
+const allowedInstructions = [
+  moveForwardInstruction,
+  turnLeftInstruction,
+  turnRightInstruction,
+]
+executeInstructions(
+  new Surface2d(5, 3),
+  new Robot2d(0, 0, 'N'),
+  'FFFRFRFFLFRFLL',
+  allowedInstructions,
+)
+```
 
 The strongest point of this solution is that all parts are decoupled - let's say
 that Mars is no longer a rectangular shaped surface, but an irregular flat
-surface with holes in it, we would require a much more complex data structure
-to keep track of what is surface and what is not - like a graph. Although the
-implementation has changed significantly, it doesn't matter to the other parts
-of the codebase, because they will still be checking whether a coordinate is
-out of bounds or not through the same `surface.isOutOfBounds()`. A big change
-like this would most likely result in minimal changes to the rest of the codebase.
+surface with holes in it. To be able to check if `(x, y)` is within its surface,
+we would require a much more complex data structure (perhaps a graph).
+
+Although the implementation details of the Surface may change overtime, since it's
+decoupled from the rest of the solution, no changes will have to be done to the
+rest of the codebase. Regardless of whether we simply perform a boundaries check,
+or the existence of `(x, y)` in an adjacency matrix/graph, `surface.isOutOfBounds()`
+is not going to change.
 
 The same thing applies to Robots, whose only responsibility is to expose the
 required API for someone to be able to transverse and rotate in a 2d world.
+Perhaps they can now rotate in 45deg increments instead of just 90deg - the rest
+of the codebase doesn't care, nothing has changed from their point of view.
 
 ## What I focused on
 
-For the main solution to the problem I focused the most on making sure that
-every thing is decoupled, and easily extensible and replaceable. As mentioned
-on the explanation above, it's easy to swap out the implementation of the surface,
-or the implementation of the robot, without having to change the entire codebase.
+For the main solution of the problem I focused the most on making sure that
+each layer is decoupled, easily extensible and replaceable, as mentioned above.
 
-The approach also attempts to model the entities closely to what they would be
-like in real-life. A Robot is its own entity, a physical thing which can move
+This approach also attempted to model the entities closely to what they would be
+like in real-life. A Robot is its own entity, a physical thing that can move
 when placed on a surface or rotate towards a different direction. A surface is
-any piece of terrain, which can have stuff placed into it, or removed. A robot
-can interact with the terrain to see what's in front of it, and so on.
+any piece of terrain, which can have stuff placed into it, or removed. And finally
+an instruction represents an action: how a robot will interact with a surface.
 
-Another thing that I focused on was making things generic enough to demonstrate
-how an entity could be extended in many different ways without causing breaking
-changes everywhere. This is why I choose to use more generic language such as
-`Surface2d` instead of `MarsSurface`. There may be any number of planets that
-are flat and bound by a rectangular area. A Mars' Surface is simply an instance
-of a `Surface2d` with specific dimensions.
+The last goal was to make things just generic enough so that they can extensible.
+This is why I choose to use more generic wording such as `Surface2d` instead of
+`MarsSurface`. There may be any number of planets that are flat and bound by a
+rectangular area. A Mars' Surface is simply an instance of a `Surface2d` with
+specific dimensions. By being less specific, we are able to expand the solution
+in many directions - supporting other types of planets, supporting different types
+of terrain, and so on.
 
-Unless I missed something, the question was fairly easy and straight to the point,
-although I found some of the wording tricky (we can discuss it more later), but
-overall it was fairly easy. It doesn't seem like there are many edge cases or
-particular sub-problems that deserve closer attention.
+Unless I missed something, I found the question to be fairly easy and straight
+forward, although I found some of the wording tricky (we can discuss it more later).
+It doesn't seem like there are many edge cases or particular sub-problems that
+deserve closer attention.
 
-It took me around 30min to reach a good, working solution, so I decided to put
-more time into exploring other areas that could help my solution stand out.
-Although this was not the focus, I think there are many topics that can help
-demonstrate a solid level of understanding of some fundamentals.
+It took me around 30min to reach a working solution that I thought was good, and
+so I decided to put more time into exploring other areas that could help me
+demonstrate technical expertise. Although this was not the focus, I choose to
+put extra focus on the frontend, as this was completely left to subjective opinion,
+and I believe it can help demonstrate technical expertise, good taste and attention
+to detail.
 
 This includes things like:
 
@@ -125,7 +146,7 @@ Here is why I choose some of the packages I did:
 - **[TailwindCSS](https://tailwindcss.com/docs/installation)** is a great tool
   for quickly prototyping UIs, with amazing defaults (like beautiful colors, a
   well-thought out spacing system, etc) that make it extremely quick to build
-  out great looking UIs in a very small timeframe.
+  out great looking UIs in a very small time frame.
 - I choose **[valtio](https://valtio.pmnd.rs/docs/introduction/getting-started)**
   for my state management package, being extremely small at just a little over 3kB.
   The main benefit of valtio is performance through fine-grained control of what
