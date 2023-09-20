@@ -29,6 +29,13 @@ export type ProcessedInstruction = {
   isInvalid?: boolean
 }
 
+export type ProcessedReport = {
+  x: number
+  y: number
+  direction: Direction
+  isLost: boolean
+}
+
 /**
  * To process each instruction in a wait-process loop (so that we can animate
  * the UI nicely), we will use a timeout loop. We will the store the currently
@@ -49,11 +56,22 @@ export const state = proxy({
   explorationStatus: ExplorationStatus.PAUSED,
   instructions: [] as ProcessedInstruction[],
   instructionIndex: 0,
+  reports: [] as ProcessedReport[],
 })
 
 const setStatus = (status: ExplorationStatus) => state.explorationStatus = status
 const setSkippedInstruction = (index: number) => state.instructions[index].isSkipped = true
 const setInvalidInstruction = (index: number) => state.instructions[index].isInvalid = true
+
+const addReport = (report: string) => {
+  const [xStr, yStr, direction, isLostStr] = report.split(' ')
+
+  const x = parseInt(xStr)
+  const y = parseInt(yStr)
+  const isLost = isLostStr === 'LOST'
+
+  state.reports.push({ x, y, direction: direction as Direction, isLost })
+}
 
 /**
  * 
@@ -74,13 +92,13 @@ const executeInstruction = () => {
     const report = executeInstructions(surface, robot, command, robotInstructions)
 
     if (report.includes('LOST'))
-      return setStatus(ExplorationStatus.LOST)
+      return setStatus(ExplorationStatus.LOST) && addReport(report)
 
     if (robot.isEqual(robotBeforeExecution))
       setSkippedInstruction(instructionIndex)
     
     if (instructionIndex === instructions.length - 1)
-      return setStatus(ExplorationStatus.COMPLETED)
+      return setStatus(ExplorationStatus.COMPLETED) && addReport(report)
   } catch {
     setInvalidInstruction(instructionIndex)
   }
@@ -132,4 +150,5 @@ export const updateSurface = (x: number, y: number) => {
   state.explorationStatus = ExplorationStatus.PAUSED
   state.instructions = []
   state.instructionIndex = 0
+  state.reports = []
 }
