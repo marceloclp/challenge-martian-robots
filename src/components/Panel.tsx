@@ -1,6 +1,6 @@
-import clsx from "clsx"
 import { FC, PropsWithChildren } from "react"
 import type { PlayCircleIcon } from '@heroicons/react/24/solid'
+import clsx from "clsx"
 
 type Props = PropsWithChildren<{
   className?: string

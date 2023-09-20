@@ -37,9 +37,9 @@ export type ProcessedReport = {
 }
 
 /**
- * To process each instruction in a wait-process loop (so that we can animate
+ * To process each instruction in a wait-do loop (so that we can animate
  * the UI nicely), we will use a timeout loop. We will the store the currently
- * running timeout tick here so we can clear before starting another tick. This
+ * running timeout tick here so we can clear before starting the next tick. This
  * is an important step necessary to prevent memory leaks.
  */
 let timeout: NodeJS.Timeout
@@ -47,6 +47,9 @@ let timeout: NodeJS.Timeout
 export const state = proxy({
   surface: new Surface2d(DEFAULT_SURFACE_RIGHT_X, DEFAULT_SURFACE_UPPER_Y),
   robot: new Robot2d(0, 0, 'N'),
+  // Given more time, we could also have the UI reflect what instructions are
+  // available, allow checking/unchecking instructions, or validate the
+  // instructions input field against this array:
   robotInstructions: [
     moveForwardInstruction,
     turnLeftInstruction,
@@ -73,9 +76,6 @@ const addReport = (report: string) => {
   state.reports.push({ x, y, direction: direction as Direction, isLost })
 }
 
-/**
- * 
- */
 const executeInstruction = () => {
   const {
     surface,

@@ -19,8 +19,6 @@ const InputField: FC<Props> = ({ className, label, ...props }) => {
             'w-full px-3 py-2 rounded-md',
             'bg-white/70 border border-neutral-200/80',
             'text-neutral-500',
-            // Remove shadow on read-only inputs so we can use it as a simple
-            // text container later on
             'shadow-sm read-only:shadow-none',
             'focus:outline-blue-500',
           )}

@@ -14,9 +14,6 @@ import {
 import InputField from "@/components/InputField"
 import Panel from "@/components/Panel"
 
-/**
- * 
- */
 const onUpdateSurface: FormEventHandler<HTMLFormElement> = (event) => {
   event.preventDefault()
 
